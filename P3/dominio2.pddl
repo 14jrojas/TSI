@@ -48,11 +48,12 @@
 	)
 
 	(:action Asignar ; accion asignar
-        ; TODO: modificar problema2
-		:parameters (?unidad - Unidades ?x - Localizaciones ?rec - Recursos) ; parametros
+		:parameters (?unidad - Unidades ?x - Localizaciones) ; parametros
 		:precondition (and 
 			(entidadEn ?unidad ?x) ; unidad está en x
-			(recursoEn ?rec ?x) ; hay rec en x
+			(exists (?rec - tipoRecurso) (and
+				(recursoEn ?rec ?x) )
+			) ; hay rec en x
 			(VCElibre ?unidad) ; unidad está libre
 
             ; añadido problema2
@@ -64,9 +65,15 @@
             )
 		)
 		:effect (and 
-			(VCEextrayendo ?unidad ?rec) ; unidad extrayendo rec
-			(not (VCElibre ?unidad)) ; unidad no está libre
-            (recursoDisponible ?rec) ; rec está disponible
+			(forall (?rec - tipoRecurso) ; para todo recurso
+				(when (and (recursoEn ?rec ?x)) ; cuando rec esta en x 
+					(and
+						(VCEextrayendo ?unidad ?rec) ; unidad extrayendo rec
+						(not (VCElibre ?unidad)) ; unidad no está libre
+						(recursoDisponible ?rec) ; rec está disponible
+					)
+				)
+			)
 		)
 	)
 
